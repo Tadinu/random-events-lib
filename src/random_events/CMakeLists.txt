@@ -3,6 +3,8 @@
 # For CMAKE_INSTALL_INCLUDEDIR definition
 include(GNUInstallDirs)
 
+option(RANDOM_EVENTS_BUILD_TESTS "Build tests for random-events" ON)
+
 # Export [random_events] as a cmake-built package
 # Needed to set the namespace for both the export targets and the alias libraries.
 set(cmake_package_name random_events CACHE INTERNAL "")
@@ -34,6 +36,10 @@ install(FILES ${version_file} ${config_file}
         COMPONENT "${PROJECT_NAME}"
         DESTINATION ${cmake_files_install_dir}
 )
+
+# Fetch dependencies (gtest, etc.)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+include(cmake/RandomEventsDependencies.cmake)
 
 # Build libraries
 add_library(random_events interval.cpp
