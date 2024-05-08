@@ -3,6 +3,29 @@
 # For CMAKE_INSTALL_INCLUDEDIR definition
 include(GNUInstallDirs)
 
+# Needed to set the namespace for both the export targets and the
+# alias libraries.
+set(cmake_package_name random_events CACHE INTERNAL "")
+
+# Create the CMake package file descriptors.
+include(CMakePackageConfigHelpers)
+set(targets_export_name ${cmake_package_name}Targets CACHE INTERNAL "")
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated" CACHE INTERNAL "")
+set(cmake_files_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${cmake_package_name}")
+set(version_file "${generated_dir}/${cmake_package_name}ConfigVersion.cmake")
+write_basic_package_version_file(${version_file} VERSION ${RANDOM_EVENTS_VERSION} COMPATIBILITY AnyNewerVersion)
+install(EXPORT ${targets_export_name}
+COMPONENT "${PROJECT_NAME}"
+NAMESPACE ${cmake_package_name}::
+DESTINATION ${cmake_files_install_dir})
+set(config_file "${generated_dir}/${cmake_package_name}Config.cmake")
+configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+"${config_file}" INSTALL_DESTINATION ${cmake_files_install_dir})
+install(FILES ${version_file} ${config_file}
+COMPONENT "${PROJECT_NAME}"
+DESTINATION ${cmake_files_install_dir})
+
+# Build libraries
 add_library(random_events interval.cpp
         include/variable.h
         include/set.h
@@ -32,7 +55,7 @@ install(
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT dev
         PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/random_events" COMPONENT dev
 )
-#OR 
+#OR
 # Install all header files for the main random_events library
 #install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ #Note the trailing / to signify copying files in the folder only (not the folder itself)
 #        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/random_events
